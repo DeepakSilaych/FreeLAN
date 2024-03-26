@@ -4,17 +4,18 @@ import ProgressBar from '../components/ProgressBar';
 import CommentSection from '../components/CommentSection';
 import S_card from '../components/sm_card';
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 function Project() {
   const [projectData, setProjectData] = useState(null); 
   const [link, setLink] = useState('');
-  const [comments, setComments] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const role = localStorage.getItem('role');
 
   useEffect(() => {
     const projectId = window.location.pathname.split('/').pop(); 
     fetchProject(projectId);
-    fetchComments(projectId);
   }, []);
 
   const fetchProject = async (projectId) => {
@@ -27,16 +28,6 @@ function Project() {
     }
   };
 
-  const fetchComments = async (projectId) => {
-    try {
-      const response = await axios.get(`http://127.0.0.1:8000/project/${projectId}/comments`);
-      setComments(response.data); 
-      console.log('Comments fetched:', response.data);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-    }
-  };
-
   const handleLinkChange = (e) => {
     setLink(e.target.value);
   };
@@ -45,22 +36,26 @@ function Project() {
     e.preventDefault();
     try {
       const projectId = window.location.pathname.split('/').pop(); 
-      await axios.put(`http://127.0.0.1:8000/project/${projectId}`, { link }); 
+      await axios.post(`http://127.0.0.1:8000/project/${projectId}/link/`, { 
+        link : link 
+      }); 
       console.log('Link submitted:', link);
-      fetchProject(projectId);
+      window.location.reload();
     } catch (error) {
       console.error('Error submitting link:', error);
     }
   };
 
-  const addComment = async (commentText) => {
+  const handleEtaUpdate = async () => {
     try {
-      const projectId = window.location.pathname.split('/').pop();
-      const response = await axios.post(`http://127.0.0.1:8000/project/${projectId}/comments`, { comment: commentText });
-      setComments([...comments, response.data]); 
-      console.log('Comment added:', response.data);
+      const projectId = window.location.pathname.split('/').pop(); 
+      await axios.post(`http://127.0.0.1:8000/project/${projectId}/eta/`, { 
+        eta: selectedDate
+      }); 
+      console.log('ETA updated:', selectedDate);
+      fetchProject(projectId);
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('Error updating ETA:', error);
     }
   };
 
@@ -70,32 +65,40 @@ function Project() {
 
   return (
     <div className="container mx-auto">
-      <Stepper />
+      <Stepper stage={projectData.stage}/>
       <div className="mt-8">
+
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-white">{projectData.title}</h2>
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Client : {projectData.client}</p>
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Developer : {projectData.developers}</p>
         <img className="w-full max-h-screen object-cover my-4 rounded-lg" src={`http://127.0.0.1:8000` + projectData.current_image} alt={projectData.title} />
+
         <ProgressBar startDate={projectData.created_at} endDate={projectData.deadline} />
+
         {role === 'client' && projectData.link && (
           <a className="block mt-4 w-max text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" href={projectData.link} target="_blank" rel="noreferrer">
             Check Link
           </a>
         )}
+
         {role === 'developer' && (
           <>
             <form onSubmit={handleLinkSubmit} className="mt-4">
               <input type="text" value={link} onChange={handleLinkChange} placeholder="Add link..." className="w-full px-3 py-2 border rounded-lg" />
               <button type="submit" className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:bg-blue-600">Submit Link</button>
             </form>
-            <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:bg-blue-600">Update ETA</button>
+            <div className="flex align-center mt-4">
+              <DatePicker selected={selectedDate} onChange={date => setSelectedDate(date)} className='h-10 round mr-2 text-center' />
+              <button className=" bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:bg-blue-600" onClick={handleEtaUpdate}>Update ETA</button>
+            </div>
+            
           </>
         )}
       </div>
       <div className="mt-8 flex">
         <div className='text-white'>
-          Previous Projects
-          {/* {previousProject.map((project, index) => (
+          {/* Previous Projects
+          {previousProject.map((project, index) => (
             <S_card
               key={index}
               title={project.title}
@@ -107,7 +110,7 @@ function Project() {
         </div>
         <div className="w-1/2"></div>
         <div>
-          <CommentSection projectId={projectData.id} comments={comments} addComment={addComment} /> 
+          <CommentSection projectId={projectData.id} /> 
         </div>
       </div>
     </div>
@@ -115,6 +118,3 @@ function Project() {
 }
 
 export default Project;
-
-
-

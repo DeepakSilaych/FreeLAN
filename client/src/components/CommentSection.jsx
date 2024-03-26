@@ -1,6 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function CommentSection({ projectId, comments, addComment }) {
+function CommentSection({ projectId}) {
+  const [comments, setComments] = useState([]);
+
+  const fetchComments = async (projectId) => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/project/${projectId}/comments`);
+      setComments(response.data); 
+      console.log('Comments fetched:', response.data);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const addComment = async (commentText) => {
+    try {
+      const projectId = window.location.pathname.split('/').pop();
+      const response = await axios.post(`http://127.0.0.1:8000/project/${projectId}/comments`, { comment: commentText });
+      setComments([...comments, response.data]); 
+      console.log('Comment added:', response.data);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
+  };
+
   const [commentText, setCommentText] = useState('');
 
   const handleAddComment = () => {
@@ -8,6 +32,10 @@ function CommentSection({ projectId, comments, addComment }) {
     addComment(commentText);
     setCommentText('');
   };
+
+  useEffect(() => {
+    fetchComments(projectId);
+  }, []);
 
   return (
     <div className="block p-4 w-max rounded-lg shadow-lg border border-white">

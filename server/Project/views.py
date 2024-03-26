@@ -32,12 +32,12 @@ def list_projects(request):
         project_data = {
             'id': project.id,
             'title': project.title,
-            'status': project.status,
+            'stage': project.stages,
             'image': project.current_image.url,
             'client': project.client.username,
             'developer': [developer.username for developer in project.developers.all()]
         }
-        if project.status: 
+        if project.stages != 5: 
             ongoing_projects.append(project_data)
         else:  
             completed_projects.append(project_data)
@@ -58,7 +58,7 @@ def project_details(request, project_id):
             'created_at': project.created_at,
             'deadline': project.deadline,
             'current_image': project.current_image.url,
-            'status': project.status,
+            'stage': project.stages,
             'type': project.type,
             'link': project.link
         }
@@ -80,13 +80,39 @@ def update_project(request, project_id):
             return Response(serializer.errors, status=400)
     except Project.DoesNotExist:
         return Response({'error': 'Project not found'}, status=404)
+    
+@api_view(['POST'])
+def update_link(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        project.link = request.data['link']
+        project.save()
+        return Response({'message': 'Link updated successfully'})
+    except Project.DoesNotExist:
+        return Response({'error': 'Project not found'}, status=404)
+    
+@api_view(['POST'])
+def update_eta(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        project.deadline = request.data['deadline']
+        project.save()
+        return Response({'message': 'ETA updated successfully'})
+    except Project.DoesNotExist:
+        return Response({'error': 'Project not found'}, status=404)
+
 
 @api_view(['GET'])
 def project_comments(request, project_id):
     try:
         project = Project.objects.get(id=project_id)
         comments = Comments.objects.filter(project=project)
-        serializer = CommentsSerializer(comments, many=True)
-        return Response(serializer.data)
+        data = {
+            'project_id': project.id,
+            'user': comments.user.username,
+            'comment': comments.comment,    
+            'time': comments.created_at.isoformat() 
+        }
+        return Response(data)
     except Project.DoesNotExist:
         return Response({'error': 'Project not found'}, status=404)

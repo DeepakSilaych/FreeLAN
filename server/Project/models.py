@@ -16,7 +16,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     deadline = models.DateField(null=True)
     current_image = models.ImageField(upload_to='project_images/')
-    status = models.BooleanField(default=True)   # 0 = completed, 1 = ongoing
+    stages = models.IntegerField(default=1)  # 1 = started, 2 = draft one, 3 = review, 4 = changes, 5 = completed
     type = models.CharField(choices=choices, max_length=20)
     link = models.URLField(blank=True, null=True)
 
