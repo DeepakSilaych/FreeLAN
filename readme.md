@@ -50,17 +50,3 @@ This project is a live project tracking dashboard developed for a fictional free
 5. Run the React development server: `cd ../client && npm start`
 6. Access the dashboard in your browser: `http://localhost:3000`
 
-### Brownie Points
-
-- Continuous Deployment: The project is connected to GitHub and deployed on Netlify for real-time updates.
-- Website Link: The hosted website link will be provided for easy access.
-
-### Contributors
-
-- [Your Name]
-- [Your Email]
-- [Your GitHub Profile]
-
-### Contact Information
-
-For any inquiries or assistance regarding the project, please contact [Your Email].
