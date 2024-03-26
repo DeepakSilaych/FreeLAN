@@ -42,6 +42,7 @@ function Dashboard() {
             {ongoingProjects.map((project, index) => (
               <ProjectCards
                 key={index}
+                id={project.id}
                 title={project.title}
                 client={project.client}
                 developer={project.developer}
@@ -60,6 +61,7 @@ function Dashboard() {
             {completedProjects.map((project, index) => (
               <ProjectCards
                 key={index}
+                id = {project.id}
                 title={project.title}
                 client={project.client}
                 developer={project.developer}
