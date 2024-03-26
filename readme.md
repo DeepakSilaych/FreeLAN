@@ -9,9 +9,9 @@ This project is a live project tracking dashboard developed for a fictional free
 1. **Authentication**:
    - Users can log in as either a Client or Developer, with appropriate permissions.
 
-    Client: ussername: sohum, password: 1234567890
-    Developer : username : deepaksilaych, password: 1234567890
-    Admin (django superuser) : username: 1, password: 1
+    Client: ussername: sohum, password: 1234567890 //
+    Developer : username : deepaksilaych, password: 1234567890 //
+    Admin (django superuser) : username: 1, password: 1 //
 
 2. **Dashboard Home**:
    - Provides an overview of ongoing projects.
