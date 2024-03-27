@@ -116,3 +116,18 @@ def project_comments(request, project_id):
         return Response(data)
     except Project.DoesNotExist:
         return Response({'error': 'Project not found'}, status=404)
+
+@api_view(['POST'])
+def add_comments(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        comments = Comments.objects.create(
+            project=project,
+            user=request.user,
+            comment=request.data['comment']
+        )
+        return Response({'message': 'Comment added successfully'})
+    except Project.DoesNotExist:
+        return Response({'error': 'Project not found'}, status=404)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=404)
